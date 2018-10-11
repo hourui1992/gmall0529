@@ -2,8 +2,11 @@ package com.atguigu.gmall.manager;
 
 import com.atguigu.gmall.SuperBean;
 import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import lombok.Data;
+
+import java.util.List;
 
 /**
  * 平台属性名信息
@@ -16,6 +19,7 @@ public class BaseAttrInfo extends SuperBean {
 
     private Integer catalog3Id;
 
-
+    @TableField(exist = false)
+    private List<BaseAttrValue> attrValues;
 
 }

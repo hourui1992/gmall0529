@@ -8,7 +8,9 @@ import com.atguigu.gmall.manager.mapper.BaseAttrInfoMapper;
 import com.atguigu.gmall.manager.mapper.BaseAttrValueMapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -28,5 +30,36 @@ public class BaseAttrInfoServiceImpl implements BaseAttrInfoService {
     @Override
     public List<BaseAttrValue> getBaseAttrValueByAttrId(Integer baseAttrInfoId) {
         return baseAttrValueMapper.selectList(new QueryWrapper<BaseAttrValue>().eq("attr_id",baseAttrInfoId));
+    }
+
+    @Override
+    @Transactional
+    public void updatesAttrInfo(BaseAttrInfo baseAttrInfo) {
+        //update
+        baseAttrInfoMapper.updateById(baseAttrInfo);
+        //update values
+        List<BaseAttrValue> attrValues = baseAttrInfo.getAttrValues();
+        List<Integer> ids =new ArrayList<>();
+        //在插入之前进行删除，不然会出现新插入的数据被删除的情况
+        for (BaseAttrValue attrValue : attrValues) {
+            if(attrValue.getId()!=null){
+                ids.add(attrValue.getId());
+            }
+        }
+        baseAttrValueMapper.delete(
+                new QueryWrapper<BaseAttrValue>()
+                        .eq("attr_Id",baseAttrInfo.getId())
+                        .notIn("id",ids));
+        for (BaseAttrValue attrValue : attrValues) {
+            if(attrValue.getId()!=null){
+
+                baseAttrValueMapper.updateById(attrValue);
+            }else{
+                baseAttrValueMapper.insert(attrValue);
+            }
+
+        }
+
+
     }
 }
